@@ -33,16 +33,16 @@ func TestFetchbyid(t *testing.T) {
 	mock.ExpectQuery("SELECT id, name,bid FROM PRODUCT WHERE id = ?").WithArgs(3).WillReturnRows(rows)
 
 	dbh := dbStore{db}
-	output,err := dbh.Getbyid(3)
+	output,err := dbh.GetbyProductid(3)
 	if err!=nil{
-		log.Fatal(err)
+		log.Fatal(model.Error)
 	}
 	expected := model.Product{
 		Id: 3,Name: "BISCUIT", Brand: model.Brand{Bid: 1},
 	}
 
 	if expected != output {
-		t.Errorf("error")
+		t.Errorf(model.Error)
 	}
 
 
@@ -52,8 +52,8 @@ func TestFetchbyid(t *testing.T) {
 	mock.ExpectQuery("SELECT id, name,bid FROM PRODUCT WHERE id = ?").WithArgs(3).WillReturnError(errors.New("NOT FOUND"))
 
 	dbh1 := dbStore{db}
-	output1,err1 := dbh1.Getbyid(3)
-	expErr:=errors.New("NOT FOUND")
+	output1,err1 := dbh1.GetbyProductid(3)
+	expErr:=errors.New(model.Idnotfound)
 	if !reflect.DeepEqual(err1, expErr){
 		t.Errorf("Expected %v error but got %v",expErr,err1)
 	}
@@ -69,33 +69,48 @@ func TestFetchbyid(t *testing.T) {
 
 
 
-/*
 func TestDeletebyid(t *testing.T) {
 	db, mock := newmock()
 	defer db.Close()
-	rows := sqlmock.NewRows([]string{"id", "name", "bid"})
-	rows.AddRow("3", "BISCUIT", "1")
 
-	mock.ExpectQuery("SELECT id, name,bid FROM PRODUCT WHERE id = ?").WithArgs(3).WillReturnRows(rows)
+	mock.ExpectExec("DELETE FROM PRODUCT WHERE id = ?").WithArgs(3).WillReturnResult(sqlmock.NewResult(0,1))
 
 	dbh := dbStore{db}
 	output,err := dbh.Deletebyid(3)
 	if err!=nil{
-		log.Fatal(err)
+		errors.New(model.Idnotfound)
+		return
 	}
-	expected := model.Product{
-		Id: 3,Name: "BISCUIT", Brand: model.Brand{Bid: 1},
+	expected := 1
+
+	if !reflect.DeepEqual(output,expected)  {
+		t.Errorf(model.Error)
+		return
 	}
 
-	if expected != output {
-		t.Errorf("error")
+
+
+	mock.ExpectPrepare("DELETE FROM PRODUCT WHERE id = ?").ExpectExec().WithArgs(3).WillReturnResult(sqlmock.NewResult(0,0))
+
+	dbh1 := dbStore{db}
+	output1,err1 := dbh1.Deletebyid(3)
+	if err1.Error()!=errors.New("invalid id").Error(){
+		errors.New(model.Idnotfound)
+		return
 	}
+	expected1 := 0
+
+	if !reflect.DeepEqual(output1,expected1)  {
+		t.Errorf(model.Error)
+		return
+	}
+
 
 }
 
 
 
-*/
+
 
 
 
@@ -121,16 +136,16 @@ func TestCreate(t *testing.T) {
 
 	created:=model.Product{Id: 5,Name: "MAGGIE",Brand:model.Brand{Bid: 5}}
 	dbh:= dbStore{db}
-	output,err := dbh.Create(created)
+	output,err := dbh.CreateP(created)
 	if err!=nil{
-		log.Fatal(err)
+		log.Fatal(model.Error)
 	}
 	expected := model.Product{
 		Id: 5,Name: "MAGGIE", Brand: model.Brand{Bid: 5},
 	}
 
 	if expected != output {
-		t.Errorf("Not Matched!")
+		t.Errorf(model.NotMatched)
 	}
 
 
@@ -140,7 +155,7 @@ func TestCreate(t *testing.T) {
 
 	created1:=model.Product{Id: 5,Name: "MAGGIE",Brand:model.Brand{Bid: 5}}
 	dbh1:= dbStore{db}
-	output1,err1 := dbh1.Create(created1)
+	output1,err1 := dbh1.CreateP(created1)
 	if err1!=nil{
 		return
 	}
@@ -149,7 +164,7 @@ func TestCreate(t *testing.T) {
 	}
 
 	if expected1 != output1 {
-		t.Errorf("Not Matched!")
+		t.Errorf(model.NotMatched)
 	}
 
 

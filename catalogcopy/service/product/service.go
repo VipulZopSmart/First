@@ -26,7 +26,7 @@ func (s service) Getbyid(id int) (model.Product, error) {
 	branddetails, err := s.brandInterface.GetbyBrandid(productdetails.Brand.Bid)
 
 	if err != nil {
-		
+
 		return model.Product{}, err
 	}
 	productdetails.Brand.Name = branddetails.Name
@@ -40,7 +40,7 @@ func (s service) Create(p model.Product) (model.Product, error) {
 	if bID == 0 {
 		branddetails, err := s.brandInterface.CreateB(p.Brand)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal(model.Error)
 		}
 		bID = branddetails.Bid
 
@@ -52,5 +52,15 @@ func (s service) Create(p model.Product) (model.Product, error) {
 		return model.Product{}, err
 	}
 	return res, err
+
+}
+
+func (s service) Deletebyid(id int) (int, error) {
+	productions, err := s.productInterface.Deletebyid(id)
+	if err != nil {
+		return 0, err
+
+	}
+	return productions, nil
 
 }

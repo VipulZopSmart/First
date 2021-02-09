@@ -13,4 +13,5 @@ type Brand interface {
 type Product interface {
 	GetbyProductid(id int) (model.Product,error)
 	CreateP(p model.Product)(model.Product,error)
+	Deletebyid(id int)(int,error)
 }

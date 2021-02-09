@@ -130,3 +130,18 @@ func (mr *MockProductMockRecorder) CreateP(p interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateP", reflect.TypeOf((*MockProduct)(nil).CreateP), p)
 }
+
+// Deletebyid mocks base method
+func (m *MockProduct) Deletebyid(id int) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Deletebyid", id)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Deletebyid indicates an expected call of Deletebyid
+func (mr *MockProductMockRecorder) Deletebyid(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Deletebyid", reflect.TypeOf((*MockProduct)(nil).Deletebyid), id)
+}

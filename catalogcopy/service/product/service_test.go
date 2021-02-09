@@ -38,14 +38,13 @@ func TestGetbyid(t *testing.T) {
 
 		res, err := ser.Getbyid(tc.id)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatal(model.Error)
 		}
 
 		if res != tc.expected {
-			log.Fatal("Error")
+			log.Fatal(model.NotMatched)
 		}
 
-		//t.Log(res, err)
 
 	}
 }
@@ -55,42 +54,36 @@ func TestCreate(t *testing.T) {
 	ps := store.NewMockProduct(ctrl)
 	bs := store.NewMockBrand(ctrl)
 
-
 	testcases := []struct {
-
-		bid int
-		perr error
-		cerr error
-		products model.Product
-		brandout model.Brand
-		productout model.Product
-		berr error
-		expected model.Product
+		bid           int
+		perr          error
+		cerr          error
+		products      model.Product
+		brandout      model.Brand
+		productout    model.Product
+		berr          error
+		expected      model.Product
 		expectederror error
 	}{
-		{5,nil,nil,model.Product{Id: 5,Name: "MAGGIE",Brand:model.Brand{Bid: 5,Name: "YIPPEE"}},model.Brand{Name: "YIPPEE"},model.Product{Id: 5,Name: "MAGGIE",Brand: model.Brand{Bid: 5,Name: "YIPPEE"}},nil,model.Product{Id: 5,Name: "MAGGIE",Brand: model.Brand{Bid: 5,Name: "YIPPEE"}},nil},
-
+		{5, nil, nil, model.Product{Id: 5, Name: "MAGGIE", Brand: model.Brand{Bid: 5, Name: "YIPPEE"}}, model.Brand{Name: "YIPPEE"}, model.Product{Id: 5, Name: "MAGGIE", Brand: model.Brand{Bid: 5, Name: "YIPPEE"}}, nil, model.Product{Id: 5, Name: "MAGGIE", Brand: model.Brand{Bid: 5, Name: "YIPPEE"}}, nil},
 	}
-		for i,tc:=range testcases{
-			bs.EXPECT().Check(tc.products.Brand.Name).Return(tc.bid,tc.cerr)
-			if tc.bid==0{
-				bs.EXPECT().CreateB(tc.products.Brand).Return(tc.brandout,tc.berr)
-				tc.bid=tc.brandout.Bid
+	for i, tc := range testcases {
+		bs.EXPECT().Check(tc.products.Brand.Name).Return(tc.bid, tc.cerr)
+		if tc.bid == 0 {
+			bs.EXPECT().CreateB(tc.products.Brand).Return(tc.brandout, tc.berr)
+			tc.bid = tc.brandout.Bid
 
-			}
-			tc.products.Brand.Bid=tc.bid
-			ps.EXPECT().CreateP(tc.products).Return(tc.productout,tc.perr)
-			serv := New(ps, bs)
-			res,err:=serv.Create(tc.productout)
-
-			if !reflect.DeepEqual(res,tc.expected){
-				t.Errorf("test failed %v got %v but expected %v", i, res, tc.expected)
-			}
-			if !reflect.DeepEqual(err, tc.expectederror){
-				t.Errorf("test failed %v got %v but expected %v", i, err, tc.expectederror)
-			}
 		}
+		tc.products.Brand.Bid = tc.bid
+		ps.EXPECT().CreateP(tc.products).Return(tc.productout, tc.perr)
+		serv := New(ps, bs)
+		res, err := serv.Create(tc.productout)
+
+		if !reflect.DeepEqual(res, tc.expected) {
+			t.Errorf("test failed %v got %v but expected %v", i, res, tc.expected)
+		}
+		if !reflect.DeepEqual(err, tc.expectederror) {
+			t.Errorf("test failed %v got %v but expected %v", i, err, tc.expectederror)
+		}
+	}
 }
-
-
-
